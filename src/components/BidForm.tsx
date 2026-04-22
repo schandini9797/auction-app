@@ -11,11 +11,12 @@ export default function BidForm({ listing, onBidSuccess }: Props) {
 	const [error, setError] = useState<string | null>(null);
 	const [submitting, setSubmitting] = useState(false);
 
-	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setError(null);
 
-		const data = new FormData(e.currentTarget);
+		const form = e.currentTarget;
+		const data = new FormData(form);
 		const bidder = (data.get("bidder") as string).trim();
 		const numAmount = parseFloat(data.get("amount") as string);
 
@@ -32,7 +33,7 @@ export default function BidForm({ listing, onBidSuccess }: Props) {
 		try {
 			const updated = await placeBid(listing.id, bidder, numAmount);
 			onBidSuccess(updated);
-			e.currentTarget.reset();
+			form.reset();
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Failed to place bid");
 		} finally {
