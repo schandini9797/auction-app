@@ -1,7 +1,19 @@
 import type { Listing } from "../types";
 
-export async function getListings(): Promise<Listing[]> {
-	const res = await fetch("/api/listings");
+
+export async function getListings(
+	search?: string,
+	category?: string,
+): Promise<Listing[]> {
+	const params = new URLSearchParams();
+
+	if (search) params.append("search", search);
+	if (category) params.append("category", category);
+
+	const query = params.toString();
+	const url = query ? `/api/listings?${query}` : "/api/listings";
+
+	const res = await fetch(url);
 	if (!res.ok) throw new Error("Failed to fetch listings");
 	return res.json();
 }

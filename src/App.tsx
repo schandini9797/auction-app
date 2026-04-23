@@ -11,17 +11,22 @@ export default function App() {
 	const [showCreateForm, setShowCreateForm] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-
+	const [search, setSearch] = useState("");
+	const [category, setCategory] = useState("");
+	
 	useEffect(() => {
-		getListings()
-			.then((data) => setListings(data))
-			.catch((err) =>
-				setError(
-					err instanceof Error ? err.message : "Failed to load listings",
-				),
-			)
-			.finally(() => setLoading(false));
-	}, []);
+	setLoading(true);
+	setError(null);
+
+	getListings(search, category)
+		.then((data) => setListings(data))
+		.catch((err) =>
+			setError(
+				err instanceof Error ? err.message : "Failed to load listings",
+			),
+		)
+		.finally(() => setLoading(false));
+}, [search, category]);
 
 	const selectedListing = listings.find((l) => l.id === selectedId) ?? null;
 
@@ -55,6 +60,27 @@ export default function App() {
 						>
 							+ New
 						</button>
+					</div>
+					<div style={{ marginBottom: "12px", display: "flex", gap: "10px" }}>
+						<input
+							type="text"
+							placeholder="Search listings..."
+							value={search}
+							onChange={(e) => setSearch(e.target.value)}
+							style={{ flex: 1, padding: "8px" }}
+						/>
+
+						<select
+							value={category}
+							onChange={(e) => setCategory(e.target.value)}
+							style={{ padding: "8px" }}
+						>
+							<option value="">All Categories</option>
+							<option value="tractor">Tractor</option>
+							<option value="combine">Combine</option>
+							<option value="implement">Implement</option>
+							<option value="attachment">Attachment</option>
+						</select>
 					</div>
 					{loading && <div className="state-message">Loading listings…</div>}
 					{error && (
