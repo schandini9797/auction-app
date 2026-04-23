@@ -12,7 +12,14 @@ export async function getListing(id: string): Promise<Listing> {
 	return res.json();
 }
 
-export async function createListing(data: { title: string }): Promise<Listing> {
+export async function createListing(data: { 
+	title: string;
+	description: string;
+	category: "tractor" | "combine" | "implement" | "attachment";
+	startingPrice: number;
+	imageUrl: string; 
+
+}): Promise<Listing> {
 	const res = await fetch("/api/listings", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },

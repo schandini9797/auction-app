@@ -41,6 +41,10 @@ interface BidRequest {
 
 interface CreateListingRequest {
 	title: string;
+	description: string;
+	category: Category;
+	startingPrice: number;
+	imageUrl: string;
 }
 
 // ============================================================
@@ -67,23 +71,41 @@ app.get("/api/listings", (_req: Request, res: Response) => {
 
 // POST /api/listings
 app.post("/api/listings", (req: Request, res: Response) => {
-	const { title } = req.body as CreateListingRequest;
+	const { 
+		title,
+		description,
+		category,
+		startingPrice,
+		imageUrl, 
+
+	} = req.body as CreateListingRequest;
 
 	if (!title || typeof title !== "string" || title.trim() === "") {
 		return res.status(400).json({ error: "Title is required" });
 	}
+	const safeStartingPrice =
+		typeof startingPrice === "number" && !isNaN(startingPrice) && startingPrice >= 0
+			? startingPrice
+			: 0;
 
 	const listing: Listing = {
 		id: randomUUID(),
 		title: title.trim(),
-		description: "",
-		category: "implement",
-		startingPrice: 0,
-		currentBid: 0,
+		description:
+			typeof description === "string" ? description.trim() : "",
+		category:
+			category === "tractor" ||
+			category === "combine" ||
+			category === "implement" ||
+			category === "attachment"
+				? category
+				: "implement",
+		startingPrice: safeStartingPrice,
+		currentBid: safeStartingPrice,
 		currentBidder: null,
 		status: "active",
 		endsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-		imageUrl: "",
+		imageUrl: typeof imageUrl === "string" ? imageUrl.trim() : "",
 		bidHistory: [],
 	};
 
