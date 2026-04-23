@@ -1,5 +1,7 @@
 import BidForm from "./BidForm";
 import type { Listing } from "../types";
+import { useEffect, useState } from "react";
+import { getBidHistory } from "../api/listings";
 
 interface Props {
 	listing: Listing;
@@ -17,6 +19,12 @@ function formatDate(iso: string): string {
 }
 
 export default function ListingDetail({ listing, onBidSuccess }: Props) {
+	const [bids, setBids] = useState<any[]>([]);
+	useEffect(() => {
+	getBidHistory(listing.id)
+		.then(setBids)
+		.catch(() => {});
+}, [listing.id]);
 	return (
 		<div className="listing-detail">
 			<img
@@ -63,6 +71,23 @@ export default function ListingDetail({ listing, onBidSuccess }: Props) {
 			{listing.status === "active" && (
 				<BidForm listing={listing} onBidSuccess={onBidSuccess} />
 			)}
+			<div style={{ marginTop: "20px" }}>
+				<h3>Bid History</h3>
+
+				{bids.length === 0 ? (
+					<p>No bids yet</p>
+				) : (
+					<ul>
+						{bids.map((b, i) => (
+							<li key={i}>
+								{b.bidder} bid ${b.amount.toLocaleString()} at{" "}
+								{new Date(b.timestamp).toLocaleString()}
+							</li>
+						))}
+					</ul>
+					)
+				}
+			</div>
 		</div>
 	);
 }

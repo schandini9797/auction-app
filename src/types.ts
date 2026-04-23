@@ -1,3 +1,9 @@
+export interface Bid {
+	bidder: string;
+	amount: number;
+	timestamp: string;
+}
+
 export interface Listing {
 	id: string;
 	title: string;
@@ -9,4 +15,5 @@ export interface Listing {
 	status: "active" | "closed" | "pending";
 	endsAt: string;
 	imageUrl: string;
+	bidHistory?: Bid[];
 }

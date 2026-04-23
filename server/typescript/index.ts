@@ -15,6 +15,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 type Category = "tractor" | "combine" | "implement" | "attachment";
 type Status = "active" | "closed" | "pending";
 
+interface Bid {
+	bidder: string;
+	amount: number;
+	timestamp: string;
+}
 interface Listing {
 	id: string;
 	title: string;
@@ -26,6 +31,7 @@ interface Listing {
 	status: Status;
 	endsAt: string;
 	imageUrl: string;
+	bidHistory?: Bid[];
 }
 
 interface BidRequest {
@@ -78,6 +84,7 @@ app.post("/api/listings", (req: Request, res: Response) => {
 		status: "active",
 		endsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
 		imageUrl: "",
+		bidHistory: [],
 	};
 
 	listings.push(listing);
@@ -127,11 +134,32 @@ app.post("/api/listings/:id/bids", (req: Request, res: Response) => {
 			error: `Bid must be greater than the current bid of $${listing.currentBid.toLocaleString()}`,
 		});
 	}
+	const newBid = {
+		bidder: bid.bidder.trim(),
+		amount: bid.amount,
+		timestamp: new Date().toISOString(),
+	};
+
+	if (!listing.bidHistory) {
+		listing.bidHistory = [];
+	}
+
+	listing.bidHistory.push(newBid);
 
 	listing.currentBid = bid.amount;
 	listing.currentBidder = bid.bidder.trim();
 
 	return res.status(200).json(listing);
+});
+// GET /api/listings/:id/bids
+app.get("/api/listings/:id/bids", (req: Request, res: Response) => {
+	const listing = listings.find((l) => l.id === req.params.id);
+
+	if (!listing) {
+		return res.status(404).json({ error: "Listing not found" });
+	}
+
+	return res.json((listing.bidHistory || []).slice().reverse());
 });
 
 app.listen(PORT, () => {

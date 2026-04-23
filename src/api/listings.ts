@@ -41,3 +41,13 @@ export async function placeBid(
 	}
 	return res.json();
 }
+export async function getBidHistory(listingId: string) {
+	const res = await fetch(`/api/listings/${listingId}/bids`);
+
+	if (!res.ok) {
+		const data = await res.json().catch(() => ({}));
+		throw new Error(data.error || data.detail || "Failed to fetch bid history");
+	}
+
+	return res.json();
+}
